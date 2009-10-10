@@ -209,9 +209,14 @@ class Factory
   def after_stub(&block)
     callback(:after_stub, &block)
   end
+  
+  def before_create(&block)
+    callback(:before_create, &block)
+  end
 
+  
   def callback(name, &block)
-    unless [:after_build, :after_create, :after_stub].include?(name.to_sym)
+    unless [:after_build, :after_create, :after_stub, :before_create].include?(name.to_sym)
       raise InvalidCallbackNameError, "#{name} is not a valid callback name. Valid callback names are :after_build, :after_create, and :after_stub"
     end
     @attributes << Attribute::Callback.new(name.to_sym, block)
