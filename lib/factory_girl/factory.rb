@@ -4,6 +4,10 @@ class Factory
   class AssociationDefinitionError < RuntimeError
   end
   
+  # Raised when a callback is defined that has an invalid name
+  class InvalidCallbackNameError < RuntimeError
+  end
+  
   class << self
     attr_accessor :factories #:nodoc:
 
@@ -67,20 +71,10 @@ class Factory
     @factory_name = factory_name_for(name)
     @options      = options      
     @attributes   = []
-    @callbacks    = {}
+    # @callbacks    = {}
   end
       
-  def after_build(&block)
-    @callbacks[:after_build] = block
-  end
 
-  def before_create(&block)
-    @callbacks[:before_create] = block
-  end
-
-  def after_create(&block)
-    @callbacks[:after_create] = block
-  end
   
   def inherit_from(parent) #:nodoc:
     @options[:class] ||= parent.class_name
@@ -195,6 +189,30 @@ class Factory
   def sequence (name, &block)
     s = Sequence.new(&block)
     add_attribute(name) { s.next }
+  end
+  
+  def after_build(&block)
+    callback(:after_build, &block)
+  end
+  
+  def after_create(&block)
+    callback(:after_create, &block)
+  end
+  
+  def after_stub(&block)
+    callback(:after_stub, &block)
+  end
+  
+  def before_create(&block)
+    callback(:before_create, &block)
+  end
+
+  
+  def callback(name, &block)
+    unless [:after_build, :after_create, :after_stub, :before_create].include?(name.to_sym)
+      raise InvalidCallbackNameError, "#{name} is not a valid callback name. Valid callback names are :after_build, :after_create, and :after_stub"
+    end
+    @attributes << Attribute::Callback.new(name.to_sym, block)
   end
   
   # Generates and returns a Hash of attributes from this factory. Attributes

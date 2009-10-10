@@ -3,9 +3,10 @@ class Factory
     class Create < Build #:nodoc:
       def result
         @instance = super
-        @callbacks[:before_create].call(@instance) if @callbacks[:before_create]
+        run_callbacks(:before_create)
+        run_callbacks(:after_build)
         @instance.save!
-        @callbacks[:after_create].call(@instance) if @callbacks[:after_create]
+        run_callbacks(:after_create)
         @instance
       end
     end

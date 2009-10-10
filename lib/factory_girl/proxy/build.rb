@@ -2,7 +2,6 @@ class Factory
   class Proxy #:nodoc:
     class Build < Proxy #:nodoc:
       def initialize(klass)
-        super
         @instance = klass.new
       end
 
@@ -23,7 +22,7 @@ class Factory
       end
 
       def result
-        @callbacks[:after_build].call(@instance) if @callbacks[:after_build]
+        run_callbacks(:after_build)
         @instance
       end
     end
