@@ -2,6 +2,11 @@ class Factory
 
   class Proxy #:nodoc:
     def initialize(klass)
+      @callbacks = {}
+    end
+    
+    def register_callbacks( callbacks )
+      @callbacks.update(callbacks)
     end
 
     def get(attribute)

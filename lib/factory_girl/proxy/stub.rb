@@ -4,6 +4,7 @@ class Factory
       @@next_id = 1000
 
       def initialize(klass)
+        super
         @stub = klass.new
         @stub.id = next_id
         @stub.instance_eval do
@@ -42,6 +43,7 @@ class Factory
       end
 
       def result
+        @callbacks[:after_build].call(@instance) if @callbacks[:after_build]
         @stub
       end
     end
