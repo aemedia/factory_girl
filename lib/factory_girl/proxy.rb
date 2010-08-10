@@ -5,11 +5,6 @@ class Factory
     attr_reader :callbacks
 
     def initialize(klass)
-      @callbacks = {}
-    end
-    
-    def register_callbacks( callbacks )
-      @callbacks.update(callbacks)
     end
 
     def get(attribute)
