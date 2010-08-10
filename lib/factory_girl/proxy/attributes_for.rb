@@ -2,6 +2,7 @@ class Factory
   class Proxy #:nodoc:
     class AttributesFor < Proxy #:nodoc:
       def initialize(klass)
+        super
         @hash = {}
       end
 
