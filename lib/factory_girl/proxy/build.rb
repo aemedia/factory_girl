@@ -2,6 +2,7 @@ class Factory
   class Proxy #:nodoc:
     class Build < Proxy #:nodoc:
       def initialize(klass)
+        super
         @instance = klass.new
       end
 
