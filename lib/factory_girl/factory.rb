@@ -4,7 +4,7 @@ class Factory
   self.factories = {}
   self.sequences = {}
 
-  attr_reader :name
+  attr_reader :factory_name
 
   # Defines a new factory that can be used by the build strategies (create and
   # build) to build new objects.
@@ -61,17 +61,31 @@ class Factory
   end
 
   def build_class #:nodoc:
-    @build_class ||= @options[:class] || name.to_s.classify.constantize
+    @build_class ||= @options[:class] || factory_name.to_s.classify.constantize
   end
 
   def initialize (name, options = {}) #:nodoc:
     options.assert_valid_keys(:class)
-    @name    = name
+    @factory_name    = name
     @options = options
 
     @static_attributes     = {}
     @lazy_attribute_blocks = {}
     @lazy_attribute_names  = []
+    @callbacks = {}
+  end
+
+  
+  def after_build(&block)
+    @callbacks[:after_build] = block
+  end
+
+  def before_create(&block)
+    @callbacks[:before_create] = block
+  end
+
+  def after_create(&block)
+    @callbacks[:after_create] = block
   end
 
   # Adds an attribute that should be assigned on generated instances for this
@@ -132,7 +146,9 @@ class Factory
 
   def create (attrs = {}) #:nodoc:
     instance = build_instance(attrs, :create)
+    @callbacks[:before_create].call(instance) if @callbacks[:before_create]
     instance.save!
+    @callbacks[:after_create].call(instance) if @callbacks[:after_create]
     instance
   end
 
@@ -184,6 +200,7 @@ class Factory
     def create (name, attrs = {})
       factory_by_name(name).create(attrs)
     end
+    
 
     private
 
@@ -210,6 +227,9 @@ class Factory
     attrs.each do |attr, value|
       instance.send(:"#{attr}=", value)
     end
+    
+    @callbacks[:after_build].call(instance) if @callbacks[:after_build]
+    
     instance
   end
 
