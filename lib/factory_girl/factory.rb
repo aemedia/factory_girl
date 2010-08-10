@@ -71,10 +71,7 @@ class Factory
     @factory_name = factory_name_for(name)
     @options      = options      
     @attributes   = []
-    # @callbacks    = {}
   end
-      
-
   
   def inherit_from(parent) #:nodoc:
     @options[:class] ||= parent.class_name
@@ -312,8 +309,7 @@ class Factory
   end
 
   def run (proxy_class, overrides) #:nodoc:
-    proxy = proxy_class.new(build_class)    
-    proxy.register_callbacks( @callbacks ) if proxy.respond_to?(:register_callbacks)
+    proxy = proxy_class.new(build_class)
     overrides = symbolize_keys(overrides)
     overrides.each {|attr, val| proxy.set(attr, val) }
     passed_keys = overrides.keys.collect {|k| Factory.aliases_for(k) }.flatten
